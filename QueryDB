@@ -1,0 +1,17 @@
+import sqlite3
+
+# SQL db location
+Db = "MyDbFullPath.db"
+
+# Open connection to db & create cursor
+conn = sqlite3.connect(Db)
+c = conn.cursor()
+
+# Select a random db entry
+c.execute("SELECT * FROM WeaponList ORDER BY RANDOM() LIMIT 1")
+
+# Print the selected entry
+print(c.fetchone())
+
+# Close connection to db
+conn.close
