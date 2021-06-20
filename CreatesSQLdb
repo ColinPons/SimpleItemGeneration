@@ -1,0 +1,22 @@
+import sqlite3
+
+# SQL db location
+Db = "MyDbFullPath.db"
+
+# Open connection to db & create cursor (will create if doesnt exist)
+conn = sqlite3.connect(Db)
+c = conn.cursor()
+
+# Create db table & attributes
+c.execute("""CREATE TABLE WeaponList (
+            Weapon text,
+            Strength integer,
+            Dexterity integer,
+            Intelligence integer
+        )""")
+
+# Commit changes
+conn.commit
+
+# Close connection
+conn.close
