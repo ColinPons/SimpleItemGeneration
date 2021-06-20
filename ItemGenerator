@@ -1,0 +1,49 @@
+import concurrent.futures
+import sqlite3
+import time
+from numpy import random
+
+# SQL db location
+Db = "MyDbFullPath.db"
+
+# Lists uses
+MeleeWeaponList = ["Sword", "Axe", "Dagger"]
+WeaponStats = ["Strength", "Dexterity", "Intelligence"]
+NewWeapon = []
+
+# Create new item
+def GenerateItem(NewWeapon):
+    Item = random.choice(MeleeWeaponList)
+    NewWeapon.append(Item)
+    for Stat in WeaponStats:
+        StatValue = random.randint(0,100)
+        NewWeapon.append(StatValue)
+    return NewWeapon
+
+# Main
+if __name__ == "__main__":
+    # Start timer
+    start = time.perf_counter()
+
+    # Start multiprocessing tasks
+    with concurrent.futures.ProcessPoolExecutor() as exec:
+        results = [exec.submit(GenerateItem, NewWeapon) for _ in range(1000)] 				#range([NumberOfFunctionsToRun])
+
+    # Open connection to db & create cursor
+    conn = sqlite3.connect(Db)
+    c = conn.cursor()
+
+    # Commit results to db
+    for f in concurrent.futures.as_completed(results):
+        r = f.result()
+        c.execute("INSERT INTO WeaponList VALUES (:Weapon, :Strength, :Dexterity, :Intelligence)", {"Weapon":r[0], "Strength":r[1], "Dexterity":r[2], "Intelligence":r[3]})
+        conn.commit()
+
+    # Close the connection
+    conn.close()
+
+    # End timer
+    finish = time.perf_counter()
+
+    # Print time taken to complete
+    print(f"Finished in {round(finish-start,2)} second(s)")
